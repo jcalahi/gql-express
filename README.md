@@ -1,3 +1,1 @@
-# gql-express
-
-Work in progress
+# work-in-progress
