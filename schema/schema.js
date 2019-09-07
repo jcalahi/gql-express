@@ -1,14 +1,16 @@
 const graphql = require('graphql');
 const axios = require('axios');
-
 const MovieType = require('./types/movie_type');
+const UserType = require('./types/user_type');
 
 const JSON_SERVER_URL = 'http://localhost:3000';
 
 const {
+  GraphQLList,
+  GraphQLNonNull,
   GraphQLObjectType,
   GraphQLSchema,
-  GraphQLList
+  GraphQLString
 } = graphql;
 
 const query = new GraphQLObjectType({
@@ -25,8 +27,30 @@ const query = new GraphQLObjectType({
   }
 });
 
-// const mutation = new GraphQLObjectType({
-//   name: 'Mutation'
-// });
+const mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    createUser: {
+      type: UserType,
+      args: {
+        username: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: new GraphQLNonNull(GraphQLString) } 
+      },
+      resolve: (parent, { username, password }) => {
+        return axios.post(`${JSON_SERVER_URL}/register`, {
+          "headers": {
+            "Content-Type": "application/json",
+          },
+          "body": JSON.stringify({
+            "email": username,
+            "password": password
+          })
+        }).then(res => {
+          return response.data;
+        });
+      }
+    }
+  }
+});
 
-module.exports = new GraphQLSchema({ query });
+module.exports = new GraphQLSchema({ query, mutation });
