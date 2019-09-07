@@ -1,0 +1,21 @@
+{
+  "movies": [
+    { "id": 101, "title": "Movie--1", "rating": "5.0", "year": 1999, "actors": [201, 205], "directors": [302, 304], "scoutbase_rating": "" },
+    { "id": 102, "title": "Movie--2", "rating": "6.0", "year": 2000, "actors": [203, 202], "directors": [301], "scoutbase_rating": "" },
+    { "id": 103, "title": "Movie--3", "rating": "7.0", "year": 2001, "actors": [205, 201, 204], "directors": [303, 305, 301], "scoutbase_rating": "" }
+  ],
+  "actors": [
+    { "id": 201, "name": "Actor--1", "birthday": "01/01/1991", "country": "ph", "movies": [101, 103] },
+    { "id": 202, "name": "Actor--2", "birthday": "02/02/1992", "country": "ph", "movies": [102] },
+    { "id": 203, "name": "Actor--3", "birthday": "03/03/1993", "country": "ph", "movies": [102] },
+    { "id": 204, "name": "Actor--4", "birthday": "03/03/1993", "country": "ph", "movies": [103] },
+    { "id": 205, "name": "Actor--5", "birthday": "03/03/1993", "country": "ph", "movies": [101, 103] }
+  ],
+  "directors": [
+    { "id": 301, "name": "Director--1", "birthday": "01/01/1991", "country": "ph", "movies": [102, 103] },
+    { "id": 302, "name": "Director--2", "birthday": "02/02/1992", "country": "ph", "movies": [101] },
+    { "id": 303, "name": "Director--3", "birthday": "03/03/1993", "country": "ph", "movies": [103] },
+    { "id": 304, "name": "Director--4", "birthday": "02/02/1992", "country": "ph", "movies": [101] },
+    { "id": 305, "name": "Director--5", "birthday": "02/02/1992", "country": "ph", "movies": [103] }
+  ]
+}
