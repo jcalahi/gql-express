@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "jsonserver": "json-server db.json -m ./node_modules/json-server-auth",
+    "jsonserver": "json-server-auth --watch db.json",
     "dev": "nodemon server.js"
   },
   "repository": {

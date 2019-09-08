@@ -2,6 +2,7 @@ const graphql = require('graphql');
 const axios = require('axios');
 const MovieType = require('./types/movie_type');
 const UserType = require('./types/user_type');
+const AuthType = require('./types/auth_type');
 
 const JSON_SERVER_URL = 'http://localhost:3000';
 
@@ -31,23 +32,33 @@ const mutation = new GraphQLObjectType({
   name: 'Mutation',
   fields: {
     createUser: {
-      type: UserType,
+      type: AuthType,
       args: {
-        username: { type: new GraphQLNonNull(GraphQLString) },
-        password: { type: new GraphQLNonNull(GraphQLString) } 
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: GraphQLString } 
       },
-      resolve: (parent, { username, password }) => {
-        return axios.post(`${JSON_SERVER_URL}/register`, {
-          "headers": {
-            "Content-Type": "application/json",
-          },
-          "body": JSON.stringify({
-            "email": username,
-            "password": password
-          })
-        }).then(res => {
-          return response.data;
-        });
+      resolve: (parentValue, { email, password }) => {
+        return axios
+          .post(`${JSON_SERVER_URL}/register`, { email, password })
+          .then(res => res.data);
+      }
+    },
+    login: {
+      type: AuthType,
+      args: {
+        email: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: GraphQLString } 
+      },
+      resolve: (parentValue, { email, password }, req) => {
+        return axios
+          .post(`${JSON_SERVER_URL}/login`, { email, password })
+          .then(res => {
+            if (res.data.accessToken) {
+              return res.data;
+            }
+          }).catch(err => {
+            console.log(err.response.data);
+          });
       }
     }
   }
