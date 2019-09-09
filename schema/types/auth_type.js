@@ -1,4 +1,5 @@
 const graphql = require('graphql');
+const jwtDecode = require('jwt-decode');
 const axios = require('axios');
 const UserType = require('./user_type');
 
@@ -19,12 +20,10 @@ const AuthType = new GraphQLObjectType({
     user: {
       type: UserType,
       resolve: (parentValue, args, res, co) => {
-        return axios.get('http://localhost:3000/users/1', null, {
+        const userData = jwtDecode(parentValue.accessToken);
+        return axios.get(`http://localhost:3000/users/${userData.sub}`, null, {
           headers: { Authorization: "Bearer " + parentValue.accessToken }
-        }).then(res => {
-          console.log(res);
-          return res.data;
-        });
+        }).then(res => res.data);
       }
     }
   }
