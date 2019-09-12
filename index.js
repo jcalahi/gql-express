@@ -2,9 +2,11 @@ const { ApolloServer } = require('apollo-server');
 const jwt = require('jsonwebtoken');
 const schema = require('./schema/schema');
 
+require('dotenv').config();
+
 const getUser = token => {
   try {
-    return token ? jwt.verify(token, 'scoutbase') : null;
+    return token ? jwt.verify(token, process.env.SECRET_KEY) : null;
   } catch (err) {
     return null;
   }
@@ -21,5 +23,5 @@ const server = new ApolloServer({
 });
 
 server.listen().then(({ url }) => {
-  console.log(`Server ready at ${url}`);
+  console.log(`Server ready at ${url}graphql`);
 });

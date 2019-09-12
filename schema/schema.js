@@ -5,6 +5,8 @@ const MovieType = require('./types/movie_type');
 const AuthType = require('./types/auth_type');
 const UserService = require('../services/api');
 
+require('dotenv').config();
+
 const {
   GraphQLList,
   GraphQLNonNull,
@@ -32,14 +34,18 @@ const mutation = new GraphQLObjectType({
     createUser: {
       type: AuthType,
       args: {
-        email: { type: new GraphQLNonNull(GraphQLString) },
+        username: { type: new GraphQLNonNull(GraphQLString) },
         password: { type: new GraphQLNonNull(GraphQLString) } 
       },
       resolve: async (parent, { username, password }) => {
+        // empty strings
+        if (username.length === 0 || password.length === 0) {
+          throw new Error('Invalid Username or Password');
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
         const response = await UserService.createUser(username, hashedPassword);
         return {
-          token: jwt.sign({ id: response.data.id, username }, 'scoutbase', { expiresIn: '1h' }),
+          token: jwt.sign({ id: response.data.id, username }, process.env.SECRET_KEY, { expiresIn: '1h' }),
           user: {
             id: response.data.id,
             username: response.data.username
@@ -58,17 +64,17 @@ const mutation = new GraphQLObjectType({
         let user = response.data.find(item => item.username === username);
 
         if (!user) {
-          throw new Error('Username not found!');
+          throw new Error('Username not found');
         }
   
         const passwordMatch = await bcrypt.compare(password, user.password);
   
         if (!passwordMatch) {
-          throw new Error('Invalid login!');
+          throw new Error('Invalid login credentials');
         }
   
         return {
-          token: jwt.sign({ id: response.data.id, username }, 'scoutbase', { expiresIn: '1h' }),
+          token: jwt.sign({ id: response.data.id, username }, process.env.SECRET_KEY, { expiresIn: '1h' }),
           user
         }
       }
