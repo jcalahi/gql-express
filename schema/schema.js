@@ -1,10 +1,9 @@
 const graphql = require('graphql');
-const axios = require('axios');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcryptjs');
 const MovieType = require('./types/movie_type');
-const UserType = require('./types/user_type');
 const AuthType = require('./types/auth_type');
-
-const JSON_SERVER_URL = 'http://localhost:3000';
+const UserService = require('../services/api');
 
 const {
   GraphQLList,
@@ -18,11 +17,10 @@ const query = new GraphQLObjectType({
   name: 'Query',
   fields: {
     movies: {
-      type: new GraphQLList(MovieType),
-      resolve: () => {
-        return axios
-          .get(`${JSON_SERVER_URL}/movies`)
-          .then(response => response.data);
+      type: GraphQLList(MovieType),
+      resolve: async () => {
+        const res = await UserService.getMovies();
+        return res.data;
       }
     }
   }
@@ -35,30 +33,44 @@ const mutation = new GraphQLObjectType({
       type: AuthType,
       args: {
         email: { type: new GraphQLNonNull(GraphQLString) },
-        password: { type: GraphQLString } 
+        password: { type: new GraphQLNonNull(GraphQLString) } 
       },
-      resolve: (parentValue, { email, password }) => {
-        return axios
-          .post(`${JSON_SERVER_URL}/register`, { email, password })
-          .then(res => res.data);
+      resolve: async (parent, { username, password }) => {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const response = await UserService.createUser(username, hashedPassword);
+        return {
+          token: jwt.sign({ id: response.data.id, username }, 'scoutbase', { expiresIn: '1h' }),
+          user: {
+            id: response.data.id,
+            username: response.data.username
+          }
+        }
       }
     },
     login: {
       type: AuthType,
       args: {
-        email: { type: new GraphQLNonNull(GraphQLString) },
-        password: { type: GraphQLString } 
+        username: { type: new GraphQLNonNull(GraphQLString) },
+        password: { type: new GraphQLNonNull(GraphQLString) } 
       },
-      resolve: (parentValue, { email, password }, req) => {
-        return axios
-          .post(`${JSON_SERVER_URL}/login`, { email, password })
-          .then(res => {
-            if (res.data.accessToken) {
-              return res.data;
-            }
-          }).catch(err => {
-            console.log(err.response.data);
-          });
+      resolve: async (parentValue, { username, password }, req) => {
+        const response = await UserService.getUsers();
+        let user = response.data.find(item => item.username === username);
+
+        if (!user) {
+          throw new Error('Username not found!');
+        }
+  
+        const passwordMatch = await bcrypt.compare(password, user.password);
+  
+        if (!passwordMatch) {
+          throw new Error('Invalid login!');
+        }
+  
+        return {
+          token: jwt.sign({ id: response.data.id, username }, 'scoutbase', { expiresIn: '1h' }),
+          user
+        }
       }
     }
   }
