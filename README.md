@@ -3,7 +3,7 @@ Running the code:
 1. npm install
 2. npm run server to run json-server (datasource)
 3. npm run dev to run apollo-server
-4. after creating and logging in a user, add { "Authorization": "Bearer *token*" } in http headers to validate authentication when querying Movies.
+4. after creating and logging in a user, add { "Authorization": "Bearer <-token->" } in http headers to validate authentication when querying Movies.
 
 # Back-end task of Code Challenge for Scoutbase
 
